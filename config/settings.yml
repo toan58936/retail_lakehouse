@@ -1,0 +1,30 @@
+# config/settings.yml
+project:
+  name: "Retail Sales Modern Data Lakehouse"
+  version: "0.2.0"
+
+storage:
+  root: "data"
+  bronze: "data/bronze"
+  silver: "data/silver"
+  gold: "data/gold"
+  rejected: "data/silver/silver_rejected"
+  duckdb: "data/gold/lakehouse.duckdb"
+
+partitioning:
+  strategy: "year_month_day"
+  format: "year={year}/month={month:02d}/day={day:02d}"
+
+pipeline:
+  batch_size: 100000
+  max_workers: 4
+  enable_rejected_records: true
+
+logging:
+  json_format: true
+  console_output: true
+  file_output: true
+  log_file: "logs/pipeline.log"
+
+data_quality:
+  great_expectations_enabled: true

@@ -1,0 +1,10 @@
+﻿__pycache__/
+*.pyc
+.env
+data/raw/
+data/bronze/
+data/silver/
+data/gold/
+logs/
+reports/
+.dbt/

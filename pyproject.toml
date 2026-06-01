@@ -1,0 +1,33 @@
+﻿# pyproject.toml
+[project]
+name = "retail-lakehouse"
+version = "0.2.0"
+description = "Retail Sales Modern Data Lakehouse - Production Grade"
+requires-python = ">=3.11"
+dependencies = [
+    "polars",
+    "pyarrow",
+    "duckdb",
+    "dbt-duckdb",
+    "great-expectations",
+    "pydantic-settings",
+    "structlog",
+    "pyyaml",
+    "tenacity",
+    "faker",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "ipykernel",
+    "typer"
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "typer"
+]

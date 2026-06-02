@@ -59,6 +59,47 @@ def bronze(
 
 
 @app.command()
+def transform(
+    env: str = typer.Option("production", "--env", help="Environment: sample or production.")
+):
+    """Run Silver Layer transformation and validation."""
+    if env not in ["sample", "production"]:
+        typer.secho("env must be 'sample' or 'production'", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1)
+
+    typer.secho(f"Running Silver transformation [{env}]", fg=typer.colors.CYAN)
+
+    from pipeline.silver.cleaner import clean_entity
+    from pipeline.silver.quality import validate_and_route
+
+    summaries = []
+    for entity in ["customers", "products", "sales"]:
+        typer.echo(f"Processing table: {entity}")
+        lf = clean_entity(entity, env_mode=env)
+        summaries.append(validate_and_route(lf, entity, env_mode=env))
+
+    failed_entities = [
+        summary["entity"]
+        for summary in summaries
+        if summary["rows_in"] == 0 or summary["rows_valid"] == 0 or summary["valid_file"] is None
+    ]
+    if failed_entities:
+        typer.secho(
+            f"Silver transformation did not produce valid output for: {', '.join(failed_entities)}",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(1)
+
+    for summary in summaries:
+        typer.echo(
+            f"{summary['entity']}: {summary['rows_valid']}/{summary['rows_in']} valid rows"
+        )
+
+    typer.secho("Silver Layer completed successfully.", fg=typer.colors.GREEN)
+
+
+@app.command()
 def status():
     """Show current configuration."""
     typer.echo("Current Configuration:")

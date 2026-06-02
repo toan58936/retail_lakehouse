@@ -39,7 +39,17 @@ def get_bronze_base_path(env_mode: str = PRODUCTION_MODE) -> Path:
 
 
 def _source_name(file_path: Path) -> str:
-    return file_path.stem.replace("_sample", "")
+    source_name = file_path.stem.replace("_sample", "")
+    source_key = source_name.lower()
+
+    if "customer" in source_key:
+        return "customers"
+    if "product" in source_key:
+        return "products"
+    if "sales" in source_key:
+        return "sales"
+
+    return source_name
 
 
 def _is_sample_file(file_path: Path) -> bool:

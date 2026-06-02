@@ -1,1 +1,0 @@
-﻿# Materialized Aggregations

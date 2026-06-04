@@ -2,9 +2,9 @@
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}

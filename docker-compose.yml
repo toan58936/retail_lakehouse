@@ -1,0 +1,25 @@
+# docker-compose.yml
+services:
+  lakehouse-sample:
+    build: .
+    container_name: retail-lakehouse-sample
+    profiles: ["sample"]
+    command: ["python", "CLI.py", "run", "--env", "sample"]
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - ENV=dev
+      - STORAGE_ROOT=data
+
+  lakehouse-prod:
+    build: .
+    container_name: retail-lakehouse-prod
+    profiles: ["prod"]
+    command: ["python", "CLI.py", "run", "--env", "production"]
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - ENV=prod
+      - STORAGE_ROOT=data

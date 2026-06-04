@@ -1815,6 +1815,7 @@ dependencies = [
     { name = "pyyaml" },
     { name = "structlog" },
     { name = "tenacity" },
+    { name = "typer" },
 ]
 
 [package.optional-dependencies]
@@ -1822,14 +1823,12 @@ dev = [
     { name = "ipykernel" },
     { name = "pytest" },
     { name = "ruff" },
-    { name = "typer" },
 ]
 
 [package.dev-dependencies]
 dev = [
     { name = "pytest" },
     { name = "ruff" },
-    { name = "typer" },
 ]
 
 [package.metadata]
@@ -1847,7 +1846,7 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'" },
     { name = "structlog" },
     { name = "tenacity" },
-    { name = "typer", marker = "extra == 'dev'" },
+    { name = "typer" },
 ]
 provides-extras = ["dev"]
 
@@ -1855,7 +1854,6 @@ provides-extras = ["dev"]
 dev = [
     { name = "pytest" },
     { name = "ruff" },
-    { name = "typer" },
 ]
 
 [[package]]

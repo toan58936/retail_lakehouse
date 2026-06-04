@@ -1,1 +1,9 @@
 ﻿# DuckDB profile
+retail_lakehouse:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DBT_DB_PATH', '../data/gold/lakehouse.duckdb') }}"
+      extensions:
+        - parquet

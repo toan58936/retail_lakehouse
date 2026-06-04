@@ -1,4 +1,4 @@
-[project]
+﻿[project]
 name = "retail-lakehouse"
 version = "0.2.0"
 description = "Retail Sales Modern Data Lakehouse - Production Grade"
@@ -14,6 +14,7 @@ dependencies = [
     "pyyaml",
     "tenacity",
     "faker",
+    "typer", # <-- Đã chuyển Typer lên production dependencies
 ]
 
 [project.optional-dependencies]
@@ -21,14 +22,12 @@ dev = [
     "pytest",
     "ruff",
     "ipykernel",
-    "typer",
 ]
 
 [dependency-groups]
 dev = [
     "pytest",
     "ruff",
-    "typer",
 ]
 
 [tool.pytest.ini_options]

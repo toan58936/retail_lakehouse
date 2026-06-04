@@ -1,6 +1,6 @@
 ﻿# Makefile - Dành cho Linux, CI/CD, Production
 
-.PHONY: install sync clean help run-all test lint docker-build
+.PHONY: install sync clean help run-all test lint docker-build dbt-snapshot dbt-run dbt-test
 
 install:  ## Cài đặt môi trường uv và dependencies
 	uv python install 3.11
@@ -10,7 +10,8 @@ sync:  ## Sync dependencies nhanh
 	uv sync
 
 clean:  ## Dọn dẹp cache
-	rm -rf .venv uv.lock __pycache__ .pytest_cache reports/ logs/
+	rm -rf .venv uv.lock __pycache__ .pytest_cache reports/ logs/ data/gold/lakehouse.duckdb data/sample_env/gold/lakehouse.duckdb
+
 
 # Pipeline Commands
 ingest-bronze:  ## Chạy Bronze Layer
@@ -32,18 +33,27 @@ test:  ## Chạy tests
 lint:  ## Kiểm tra code style
 	uv run ruff check pipeline/
 
-dbt-run:  ## Chạy dbt models
-	cd dbt && uv run dbt run
+dbt-snapshot:  ## Chạy dbt snapshots
+	cd dbt && uv run dbt snapshot --select snp_*
+
+dbt-run:  ## Chạy dbt models (marts)
+	cd dbt && uv run dbt run --select +marts
+
+dbt-test:  ## Chạy dbt tests cho marts
+	cd dbt && uv run dbt test --select marts
+
+
 
 reports:  ## Tạo reports
 	uv run python scripts/generate_reports.py
 
+# Makefile (Trích đoạn phần cuối)
 # Docker
 docker-build:  ## Build Docker image
-	docker build -t retail-lakehouse:latest .
+	docker compose build
 
-docker-run:  ## Chạy pipeline trong Docker
-	docker run --rm -v $(PWD)/data:/app/data retail-lakehouse:latest make run-all
+docker-run-sample:  ## Chạy pipeline môi trường Sample trong Docker
+	docker compose --profile sample up
 
-help:  ## Hiển thị danh sách lệnh
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+docker-run-prod:  ## Chạy pipeline môi trường Prod trong Docker
+	docker compose --profile prod up

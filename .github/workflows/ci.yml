@@ -1,13 +1,89 @@
 ﻿name: CI Pipeline
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  ci:
+  test-and-validate:
+    name: Lint • Unit • E2E (sample) • DBT
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
-      - run: pip install poetry && poetry install
-      - run: make lint
-      - run: make test
-      - run: cd dbt && dbt compile
+      - name: 1. Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 2. Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 3. Setup uv (Tích hợp Cache)
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: latest
+          enable-cache: true # Gọn gàng hơn rất nhiều
+
+      - name: 4. Cài đặt Dependencies
+        run: uv sync --frozen
+
+      - name: 5. Kiểm định Code (Lint)
+        run: uv run ruff check pipeline/
+
+      - name: 6. Chạy Unit Tests
+        run: uv run pytest tests/
+
+      - name: 7. Khởi tạo & Bơm dữ liệu Sample
+        run: |
+          uv run python CLI.py init
+          uv run python scripts/generate_small_sample.py
+
+      - name: 8. Chạy E2E - Tầng Bronze & Silver
+        env:
+          STORAGE_ROOT: data
+        run: |
+          uv run python CLI.py bronze --env sample
+          uv run python CLI.py transform --env sample
+
+      - name: 9. Tải dependencies cho dbt
+        run: cd dbt && uv run dbt deps
+
+      - name: 10. Chụp ảnh SCD Type 2 (dbt snapshot)
+        env:
+          DBT_SILVER_DIR: ${{ github.workspace }}/data/sample_env/silver
+          DBT_DB_PATH: ${{ github.workspace }}/data/sample_env/gold/lakehouse.duckdb
+        run: cd dbt && uv run dbt snapshot
+
+      - name: 11. Xây dựng Data Warehouse (dbt run)
+        env:
+          DBT_SILVER_DIR: ${{ github.workspace }}/data/sample_env/silver
+          DBT_DB_PATH: ${{ github.workspace }}/data/sample_env/gold/lakehouse.duckdb
+        run: cd dbt && uv run dbt run --select +marts
+
+      - name: 12. Kiểm định Chất lượng Dữ liệu (dbt test)
+        env:
+          DBT_SILVER_DIR: ${{ github.workspace }}/data/sample_env/silver
+          DBT_DB_PATH: ${{ github.workspace }}/data/sample_env/gold/lakehouse.duckdb
+        run: cd dbt && uv run dbt test --select marts
+
+      - name: 13. Thu gom Logs (Chỉ chạy khi lỗi)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-logs
+          path: |
+            logs/**
+            dbt/logs/**
+            reports/**
+          if-no-files-found: ignore

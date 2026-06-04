@@ -100,6 +100,22 @@ def transform(
 
 
 @app.command()
+def run(
+    env: str = typer.Option("production", "--env", help="Environment: sample or production.")
+):
+    """Run the full End-to-End Pipeline: Bronze -> Silver -> Gold."""
+    if env not in ["sample", "production"]:
+        typer.echo("env must be 'sample' or 'production'", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(f"Running End-to-End Pipeline [{env}]")
+
+    from pipeline.orchestrator import run_pipeline
+
+    run_pipeline(env_mode=env)
+
+
+@app.command()
 def status():
     """Show current configuration."""
     typer.echo("Current Configuration:")

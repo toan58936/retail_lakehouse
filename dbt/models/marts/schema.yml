@@ -1,0 +1,94 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "Dimension table containing cleaned customer information."
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_products
+    description: "Dimension table containing cleaned product master data."
+    columns:
+      - name: product_id
+        description: "Unique product identifier"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_stores
+    description: "Dimension table containing unique store identifiers."
+    columns:
+      - name: store_id
+        description: "Unique store identifier"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_date
+    description: "Date dimension table with calendar attributes."
+    columns:
+      - name: date_key
+        description: "Date key (primary key) in YYYY-MM-DD format"
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_sales
+    description: "Fact table containing sales transactions with measures."
+    columns:
+      - name: sale_id
+        description: "Unique sales transaction identifier"
+        tests:
+          - unique
+          - not_null
+
+      - name: quantity
+        description: "Quantity of products sold"
+        tests:
+          - not_null
+
+      - name: unit_price
+        description: "Unit price of the product"
+        tests:
+          - not_null
+
+      - name: revenue
+        description: "Revenue = quantity * unit_price"
+        tests:
+          - not_null
+
+      - name: customer_id
+        description: "Foreign key to dim_customers"
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+      - name: product_id
+        description: "Foreign key to dim_products"
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+
+      - name: store_id
+        description: "Foreign key to dim_stores"
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_stores')
+                field: store_id
+
+      - name: sale_date
+        description: "Foreign key to dim_date"
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key

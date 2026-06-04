@@ -1,0 +1,20 @@
+version: 2
+
+sources:
+  - name: silver_source
+    description: "Kho dữ liệu sạch tầng Silver Layer (Đọc trực tiếp từ file Parquet)"
+    
+    # Cấu hình meta chuẩn chỉnh cho dbt-duckdb adapter
+    meta:
+      external_location: "{{ env_var('DBT_SILVER_DIR', '../data/silver') }}/{name}.parquet"
+      format: 'parquet' # Ép DuckDB đọc chuẩn định dạng, tối ưu hiệu năng
+      
+    tables:
+      - name: customers
+        description: "Dữ liệu khách hàng đã được làm sạch kỹ thuật, trim và Title Case"
+        
+      - name: products
+        description: "Dữ liệu sản phẩm chuẩn, unit_cost đã được ép kiểu pl.Float64"
+        
+      - name: sales
+        description: "Giao dịch bán hàng siêu sạch, đã deduplicate theo sale_id"

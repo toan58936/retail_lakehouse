@@ -3,7 +3,5 @@
     product_name,
     category,
     unit_cost,
-    dbt_valid_from as valid_from,
-    dbt_valid_to as valid_to,
-    case when dbt_valid_to is null then true else false end as is_current
-from {{ ref('snp_products') }}
+    now() as created_at
+from {{ ref('stg_products') }}

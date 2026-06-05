@@ -11,6 +11,25 @@ from faker import Faker
 from datetime import datetime, timedelta
 import random
 from pathlib import Path
+import sys
+
+# Ensure repo root is on sys.path when running as a script (e.g. in CI)
+# Search for project root by looking for pipeline directory
+script_dir = Path(__file__).resolve().parent
+current = script_dir
+while current != current.parent:
+    if (current / "pipeline").is_dir():
+        REPO_ROOT = current
+        if str(REPO_ROOT) not in sys.path:
+            sys.path.insert(0, str(REPO_ROOT))
+        break
+    current = current.parent
+else:
+    # Fallback to parent[1] if pipeline not found
+    REPO_ROOT = script_dir.parent
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
+
 from pipeline.config import settings
 from pipeline.logging import logger
 

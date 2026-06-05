@@ -2,10 +2,8 @@
 # pipeline/bronze/metadata.py
 from datetime import datetime
 import uuid
-from pathlib import Path
 import polars as pl
-from pipeline.config import settings
-from pipeline.logging import logger
+
 
 
 def add_metadata(df: pl.DataFrame, source_file: str, load_id: str = None) -> pl.DataFrame:

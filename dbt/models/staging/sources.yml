@@ -6,7 +6,7 @@ sources:
     
     # Cấu hình meta chuẩn chỉnh cho dbt-duckdb adapter
     meta:
-      external_location: "{{ env_var('DBT_SILVER_DIR', '../data/silver') }}/{name}.parquet"
+      external_location: "{{ var('DBT_SILVER_DIR', '../data/silver') }}/{name}.parquet"
       format: 'parquet' # Ép DuckDB đọc chuẩn định dạng, tối ưu hiệu năng
       
     tables:

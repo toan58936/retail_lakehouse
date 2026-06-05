@@ -2,9 +2,11 @@
 # pipeline/silver/quality.py
 import polars as pl
 from datetime import datetime
-from pipeline.config import settings
+
 from pipeline.logging import logger
+
 from .cleaner import get_silver_base_path, get_rejected_base_path
+
 
 def validate_and_route(lf: pl.LazyFrame, entity_name: str, env_mode: str = "production") -> dict:
     """Validate dữ liệu và route valid / rejected"""

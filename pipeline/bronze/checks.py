@@ -25,7 +25,14 @@ def check_required_fields(df: pl.DataFrame, key_columns: list, source_name: str)
     for col in key_columns:
         null_count = null_counts[0, f"{col}_null"]
         if null_count > 0:
-            logger.warning(f"Found null values in key column", column=col, null_count=int(null_count), source=source_name)
+            logger.warning(
+                "Found null values in key column",
+                column=col,
+                null_count=int(null_count),
+                source=source_name,
+            )
+
+
     
     return df
 

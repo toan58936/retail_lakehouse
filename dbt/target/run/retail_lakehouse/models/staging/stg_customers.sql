@@ -2,5 +2,5 @@
   
   create view "lakehouse"."main"."stg_customers__dbt_tmp" as (
     select *
-from 'D:/retail_lakehouse/data/sample_env/silver/customers.parquet'
+from '../data/silver/customers.parquet'
   );

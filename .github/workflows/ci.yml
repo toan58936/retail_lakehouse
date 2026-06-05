@@ -59,25 +59,26 @@ jobs:
       - name: 9. Tải dependencies cho dbt
         run: cd dbt && uv run dbt deps
 
-      - name: 10. Chụp ảnh SCD Type 2 (dbt snapshot)
-        env:
-          DBT_SILVER_DIR: ${{ github.workspace }}/data/sample_env/silver
-          DBT_DB_PATH: ${{ github.workspace }}/data/sample_env/gold/lakehouse.duckdb
-        run: cd dbt && uv run dbt snapshot
+      # Skip snapshot - not needed for testing, only for production SCD Type 2 tracking
+      # - name: 10. Chụp ảnh SCD Type 2 (dbt snapshot)
+      #   env:
+      #     DBT_SILVER_DIR: ${{ github.workspace }}/data/sample_env/silver
+      #     DBT_DB_PATH: ${{ github.workspace }}/data/sample_env/gold/lakehouse.duckdb
+      #   run: cd dbt && uv run dbt snapshot
 
-      - name: 11. Xây dựng Data Warehouse (dbt run)
+      - name: 10. Xây dựng Data Warehouse (dbt run)
         env:
           DBT_SILVER_DIR: ${{ github.workspace }}/data/sample_env/silver
           DBT_DB_PATH: ${{ github.workspace }}/data/sample_env/gold/lakehouse.duckdb
         run: cd dbt && uv run dbt run --select +marts
 
-      - name: 12. Kiểm định Chất lượng Dữ liệu (dbt test)
+      - name: 11. Kiểm định Chất lượng Dữ liệu (dbt test)
         env:
           DBT_SILVER_DIR: ${{ github.workspace }}/data/sample_env/silver
           DBT_DB_PATH: ${{ github.workspace }}/data/sample_env/gold/lakehouse.duckdb
         run: cd dbt && uv run dbt test --select marts
 
-      - name: 13. Thu gom Logs (Chỉ chạy khi lỗi)
+      - name: 12. Thu gom Logs (Chỉ chạy khi lỗi)
         if: failure()
         uses: actions/upload-artifact@v4
         with:

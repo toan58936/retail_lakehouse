@@ -67,7 +67,7 @@ def generate_small_data():
         "unit_price": [round(random.uniform(15, 450), 2) for _ in range(5000)]
     })
 
-    # Save
+    # Save to CSV
     customers.write_csv("data/raw/customer/customers_sample.csv")
     products.write_csv("data/raw/product/products_sample.csv")
     sales.write_csv("data/raw/sales/sales_sample.csv")
@@ -76,6 +76,42 @@ def generate_small_data():
     logger.info(f"   Customers: {len(customers)} rows")
     logger.info(f"   Products : {len(products)} rows")
     logger.info(f"   Sales    : {len(sales)} rows")
+
+    # Generate silver layer parquet for dbt snapshots
+    logger.info("Generating silver layer parquet files for dbt snapshots...")
+    silver_path = Path("data/silver")
+    silver_path.mkdir(parents=True, exist_ok=True)
+    
+    # Apply silver layer cleaning transformations
+    customers_silver = customers.with_columns([
+        pl.col("customer_id").str.strip_chars().str.to_uppercase(),
+        pl.col("customer_name").str.strip_chars().str.to_titlecase(),
+        pl.col("email").str.strip_chars().str.to_lowercase(),
+        pl.col("region").str.strip_chars().str.to_titlecase(),
+    ])
+    
+    products_silver = products.with_columns([
+        pl.col("product_id").str.strip_chars().str.to_uppercase(),
+        pl.col("product_name").str.strip_chars(),
+        pl.col("category").str.strip_chars().str.to_titlecase(),
+        pl.col("unit_cost").cast(pl.Float64).round(2)
+    ])
+    
+    sales_silver = sales.with_columns([
+        pl.col("sale_id").str.strip_chars().str.to_uppercase(),
+        pl.col("customer_id").str.strip_chars().str.to_uppercase(),
+        pl.col("product_id").str.strip_chars().str.to_uppercase(),
+        pl.col("store_id").str.strip_chars().str.to_uppercase(),
+        pl.col("quantity").cast(pl.Int32),
+        pl.col("unit_price").cast(pl.Float64).round(2)
+    ]).unique(subset=["sale_id"], keep="first")
+    
+    # Write to parquet
+    customers_silver.write_parquet(silver_path / "customers.parquet")
+    products_silver.write_parquet(silver_path / "products.parquet")
+    sales_silver.write_parquet(silver_path / "sales.parquet")
+    
+    logger.info("✅ Silver layer parquet files created for dbt snapshots!")
 
 
 if __name__ == "__main__":

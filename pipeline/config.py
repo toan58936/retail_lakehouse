@@ -89,6 +89,11 @@ class Settings(BaseSettings):
         for layer in ["bronze", "silver", "gold", "rejected"]:
             self.get_layer_path(layer).mkdir(parents=True, exist_ok=True)
 
+        # Tạo thư mục raw cho data ingestion
+        base = Path(self.STORAGE_ROOT)
+        for raw_subdir in ["customer", "product", "sales"]:
+            (base / "raw" / raw_subdir).mkdir(parents=True, exist_ok=True)
+
         # Tạo thư mục log theo LOG_FILE (linh hoạt)
         Path(self.LOG_FILE).parent.mkdir(parents=True, exist_ok=True)
 
